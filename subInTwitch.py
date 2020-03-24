@@ -15,7 +15,7 @@ SelectCursor = mydb.cursor()
 lastlinkInSQL = eval(open('lastLinkTxt.txt', 'r').read())
 
 while True:
-    time.sleep(300)
+    time.sleep(600)
     lastPickedLink = eval(open('lastLinkTxt.txt', 'r').read())
 
     if mydb.is_connected() == False:
@@ -82,12 +82,15 @@ while True:
                             driver.find_element_by_xpath(xpathFollow).click()
                             time.sleep(3)
                             print('Готово')
+                            open('lastLinkTxt.txt', 'w').write(str(lastlinkInSQL))
                         except:
                             print('Кнопка не нажалась')
                             sendMsg(Admin_id, 'Кнопка не нажимается. Сюда: '+ link)
+                            open('lastLinkTxt.txt', 'w').write(str(lastlinkInSQL))
                     else:
                         sendMsg(Admin_id, 'Что то не то. Проверить на наличие подписки: ' + link)
                         print('Ой, уже подписаны на твиче. Готово!')
+                        open('lastLinkTxt.txt', 'w').write(str(lastlinkInSQL))
                 driver.quit()
             except:
                 try:
@@ -97,9 +100,10 @@ while True:
                 except:
                     sendMsg(Admin_id, 'Канал не существует или куки слетели. Сюда: ' + link)
                     print('Такого канала несуществует, повторите попытку.\n(или что то с ботом, админ уже проверяет)')
+                    open('lastLinkTxt.txt', 'w').write(str(lastlinkInSQL))
                 driver.get_screenshot_as_file('error {}.png'.format(time.strftime("%Y%m%d-%H%M%S")))
                 driver.quit()
-        open('lastLinkTxt.txt', 'w').write(str(lastlinkInSQL))
+
         SelectCursor.close()
         mydb.close()
 
