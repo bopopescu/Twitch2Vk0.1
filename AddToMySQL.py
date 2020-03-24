@@ -164,6 +164,7 @@ while True:    # LongPoll получение последнего сообщен
                 mycursor.close()
         except:
             print("Can't get lastUserMSG")
+            id = 1
             pass
 
 
