@@ -3,7 +3,7 @@ import email.message
 import mysql.connector
 from SendMessageByVk import *
 from bs4 import BeautifulSoup
-from info import mypass
+from info import mypass, config
 
 
 checkhtml = 1
@@ -35,14 +35,9 @@ while True:  # Постоянная проверка новых писем на 
                 link = str(a.text)
                 print(link)
             if link.split('/')[2] == 'www.twitch.tv':
-
+                link = 'https://twitch.tv/' + link.split('/')[3]
                 try:
-                    mydb = mysql.connector.connect(
-                        host="remotemysql.com",
-                        user="a0Pv8eJGfa",
-                        passwd="L6EW1UIcgi",
-                        database='a0Pv8eJGfa'
-                    )
+                    mydb = mysql.connector.connect(**config)
                     mycursor = mydb.cursor()
                     mycursor.execute('SELECT * FROM users')
                     myresult = mycursor.fetchall()
