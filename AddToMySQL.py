@@ -90,78 +90,81 @@ while True:    # LongPoll получение последнего сообщен
         print('problemVkConnection')
         pass
     while id != 1: # Впихиваем последнее сообщение пользователя в базу данных, сейчас нужно поменять на проверку наличия ссылки на твич для того что бы впихать
-        unsub = 0
-        workingLink = None
-        LastUserMsg = getBruh(id)[0]['text']
-        print("Message", LastUserMsg, 'from', id)
-        if LastUserMsg == 'Отписка':
-            unsub = 1
-            sendMsg(id, 'Введите ссылку на стримера')
-            id = 1
-        elif LastUserMsg == 'Отписка от всего':
-            mycursor = mydb.cursor()
-            deleteAll = 'DELETE FROM users WHERE VKID=%s' % id
-            mycursor.execute(deleteAll)
-            sendMsg(id, 'Вы отписались от всех рассылок')
-            mydb.commit()
-            id = 1
-        elif LastUserMsg == 'Меню':
-            sendMsg(id, '1. "https://twitch.tv/***" || "https://www.twitch.tv/***"\n\n2. Отписка\n\n3. Отписка от всего')
-            id = 1
-        else:
-            for i in range(len(LastUserMsg.split('/'))):
-                if LastUserMsg.split('/')[i] == 'twitch.tv' or LastUserMsg.split('/')[i] == 'www.twitch.tv':
-                    if i == 2:
-                        workingLink = 'https://twitch.tv/' + LastUserMsg.split('/')[i + 1]
-                        print(workingLink)
-                        TwitchName = LastUserMsg.split('/')[i + 1]
-                        TwitchNameFL = tuple(LastUserMsg.split('/')[i + 1][0])
-                        if unsub == 1:
-                            print('Deleting..')
-                            mycursor = mydb.cursor()
-                            deleteFromMySql_vkid_link(id)
-                            mydb.commit()
-                            mycursor.close()
-                            unsub = 0
-                            id = 1
-                    else:
-                        Error()
-                        id = 1
-                elif len(LastUserMsg.split('/')) - 1 == i and type(workingLink) != str:
+        try:
+            unsub = 0
+            workingLink = None
+            LastUserMsg = getBruh(id)[0]['text']
+            print("Message", LastUserMsg, 'from', id)
+            if LastUserMsg == 'Отписка':
+                unsub = 1
+                sendMsg(id, 'Введите ссылку на стримера')
+                id = 1
+            elif LastUserMsg == 'Отписка от всего':
+                mycursor = mydb.cursor()
+                deleteAll = 'DELETE FROM users WHERE VKID=%s' % id
+                mycursor.execute(deleteAll)
+                sendMsg(id, 'Вы отписались от всех рассылок')
+                mydb.commit()
+                id = 1
+            elif LastUserMsg == 'Меню':
+                sendMsg(id, '1. "https://twitch.tv/***" || "https://www.twitch.tv/***"\n\n2. Отписка\n\n3. Отписка от всего')
+                id = 1
+            else:
+                for i in range(len(LastUserMsg.split('/'))):
+                    if LastUserMsg.split('/')[i] == 'twitch.tv' or LastUserMsg.split('/')[i] == 'www.twitch.tv':
+                        if i == 2:
+                            workingLink = 'https://twitch.tv/' + LastUserMsg.split('/')[i + 1]
+                            print(workingLink)
+                            TwitchName = LastUserMsg.split('/')[i + 1]
+                            TwitchNameFL = tuple(LastUserMsg.split('/')[i + 1][0])
+                            if unsub == 1:
+                                print('Deleting..')
+                                mycursor = mydb.cursor()
+                                deleteFromMySql_vkid_link(id)
+                                mydb.commit()
+                                mycursor.close()
+                                unsub = 0
+                                id = 1
+                        else:
                             Error()
                             id = 1
+                    elif len(LastUserMsg.split('/')) - 1 == i and type(workingLink) != str:
+                                Error()
+                                id = 1
 
 
-        if type(workingLink) == str:
-            sendMsg(id, 'Проверяем наличие в базе данных')
-            mycursor = mydb.cursor()
-            sel = ('SELECT * FROM users WHERE LetIndex = %s')
-            fl = (TwitchNameFL)
-            mycursor.execute(sel,fl)
-            asc = mycursor.fetchall()
-            got = 0
-            AlreadyInSQL = 0
+            if type(workingLink) == str:
+                sendMsg(id, 'Проверяем наличие в базе данных')
+                mycursor = mydb.cursor()
+                sel = ('SELECT * FROM users WHERE LetIndex = %s')
+                fl = (TwitchNameFL)
+                mycursor.execute(sel,fl)
+                asc = mycursor.fetchall()
+                got = 0
+                AlreadyInSQL = 0
 
-            for k in range(len(asc)+1):
-                if k != len(asc) and got != 1:
-                    print(asc[k])
-                    if asc[k][0] == getBruh(id)[0]['peer_id'] and asc[k][1] == workingLink:
-                        sendMsg(id, 'Стример ' + TwitchName + ' уже привязан к вашему аккаунту, не надо так')
-                        got = 1
+                for k in range(len(asc)+1):
+                    if k != len(asc) and got != 1:
+                        print(asc[k])
+                        if asc[k][0] == getBruh(id)[0]['peer_id'] and asc[k][1] == workingLink:
+                            sendMsg(id, 'Стример ' + TwitchName + ' уже привязан к вашему аккаунту, не надо так')
+                            got = 1
+                            id = 1
+                        if asc[k][1] == workingLink:
+                            AlreadyInSQL = 1
+                    elif got != 1 and k == len(asc):
+                        addToMySql_vkid_link(id, workingLink)
+                        if AlreadyInSQL != 1:
+                            sendMsg(id, 'Вы первый! Мы подписались на твиче!')
+                            mydb.cursor().execute('INSERT INTO linksToSub (subLink) VALUES ("%s")' % workingLink)
+                            mydb.commit()
                         id = 1
-                    if asc[k][1] == workingLink:
-                        AlreadyInSQL = 1
-                elif got != 1 and k == len(asc):
-                    addToMySql_vkid_link(id, workingLink)
-                    if AlreadyInSQL != 1:
-                        sendMsg(id, 'Вы первый! Мы подписались на твиче!')
-                        mydb.cursor().execute('INSERT INTO linksToSub (subLink) VALUES ("%s")' % workingLink)
-                        mydb.commit()
-                    id = 1
-                elif got == 1 and k == len(asc):
-                    id = 1
-            mycursor.close()
-
+                    elif got == 1 and k == len(asc):
+                        id = 1
+                mycursor.close()
+        except:
+            print("Can't get lastUserMSG")
+            pass
 
 
 
