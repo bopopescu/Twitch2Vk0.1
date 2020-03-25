@@ -113,9 +113,9 @@ while True:    # LongPoll получение последнего сообщен
                 LinkSeparated = LastUserMsg.split('/')
                 for i in range(len(LinkSeparated)):
 
-                    if LinkSeparated[i] == 'twitch.tv' or LinkSeparated[i] == 'www.twitch.tv':
+                    if LinkSeparated[i] == 'twitch.tv' or LinkSeparated[i] == 'www.twitch.tv' or LinkSeparated[i] == 'm.twitch.tv':
                         if i == 2:
-                            workingLink = 'https://twitch.tv/' + LinkSeparated[i + 1]
+                            workingLink = 'https://twitch.tv/' + LinkSeparated[i + 1].lower()
                             TwitchName = LinkSeparated[i + 1]
                             try:
                                 workingLink = workingLink.split('?')[0]
