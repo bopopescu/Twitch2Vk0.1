@@ -107,16 +107,23 @@ while True:    # LongPoll получение последнего сообщен
                 mydb.commit()
                 id = 1
             elif LastUserMsg == 'Меню':
-                sendMsg(id, '1. "https://twitch.tv/***" || "https://www.twitch.tv/***"\n\n2. Отписка\n\n3. Отписка от всего')
+                sendMsg(id, '1. *Ссылка*"\n\n2. Отписка\n\n3. Отписка от всего')
                 id = 1
             else:
-                for i in range(len(LastUserMsg.split('/'))):
-                    if LastUserMsg.split('/')[i] == 'twitch.tv' or LastUserMsg.split('/')[i] == 'www.twitch.tv':
+                LinkSeparated = LastUserMsg.split('/')
+                for i in range(len(LinkSeparated)):
+
+                    if LinkSeparated[i] == 'twitch.tv' or LinkSeparated[i] == 'www.twitch.tv':
                         if i == 2:
-                            workingLink = 'https://twitch.tv/' + LastUserMsg.split('/')[i + 1]
+                            workingLink = 'https://twitch.tv/' + LinkSeparated[i + 1]
+                            TwitchName = LinkSeparated[i + 1]
+                            try:
+                                workingLink = workingLink.split('?')[0]
+                                TwitchName = TwitchName.split('?')[0]
+                            except:
+                                pass
                             print(workingLink)
-                            TwitchName = LastUserMsg.split('/')[i + 1]
-                            TwitchNameFL = tuple(LastUserMsg.split('/')[i + 1][0])
+                            TwitchNameFL = tuple(LinkSeparated[i + 1][0])
                             if unsub == 1:
                                 print('Deleting..')
                                 mycursor = mydb.cursor()
@@ -128,7 +135,7 @@ while True:    # LongPoll получение последнего сообщен
                         else:
                             Error()
                             id = 1
-                    elif len(LastUserMsg.split('/')) - 1 == i and type(workingLink) != str:
+                    elif len(LinkSeparated) - 1 == i and type(workingLink) != str:
                                 Error()
                                 id = 1
 
