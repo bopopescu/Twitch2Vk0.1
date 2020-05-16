@@ -1,11 +1,10 @@
 from SendMessageByVk import *
 import mysql.connector
 from info import *
-
+import traceback
 
 mydb = mysql.connector.connect(**config)
 mycursor = mydb.cursor()
-
 def getBruh(id):
     response = requests.get('https://api.vk.com/method/messages.getHistory',
                             params={
@@ -23,9 +22,9 @@ def getBruh(id):
 
 
 def addToMySql_vkid_link(bruhId, link):
-    all = getBruh(bruhId)
+    mycursor = mydb.cursor()
     sql = "INSERT INTO users (VKID, TwitchUser, LetIndex) VALUES (%s, %s, %s)"
-    val = (all[0]['peer_id'], link, all[0]['text'].split('/')[3][0])
+    val = (bruhId, link, link[19])
     mycursor.execute(sql, val)
     mydb.commit()
     if mycursor.rowcount == -1:
@@ -34,10 +33,9 @@ def addToMySql_vkid_link(bruhId, link):
         sendMsg(bruhId, 'Стример ' + TwitchName + ' добавлен в базу данных')
     print(mycursor.rowcount, "record inserted.")
 
-def deleteFromMySql_vkid_link(bruhId):
-    all = getBruh(bruhId)
+def deleteFromMySql_vkid_link(bruhId, link):
     sql = "DELETE FROM users WHERE VKID = %s and TwitchUser= %s"
-    val = (all[0]['peer_id'], all[0]['text'])
+    val = (bruhId, link)
     mycursor.execute(sql, val)
     mydb.commit()
     if mycursor.rowcount == -1:
@@ -90,35 +88,49 @@ while True:    # LongPoll получение последнего сообщен
         print(token)
         print('problemVkConnection')
         pass
+
     while id != 1: # Впихиваем последнее сообщение пользователя в базу данных, сейчас нужно поменять на проверку наличия ссылки на твич для того что бы впихать
         try:
-            unsub = 0
             workingLink = None
             LastUserMsg = getBruh(id)[0]['text']
             print("Message", LastUserMsg, 'from', id)
 
-            if LastUserMsg == 'Отписка':
-                unsub = 1
-                sendMsg(id, 'Введите ссылку на стримера')
+            if LastUserMsg.split(' ')[0].lower() == 'отписка':
+                workingLink = 'https://twitch.tv/' + LastUserMsg.split(' ')[1]
+                TwitchName = LastUserMsg.split(' ')[1].lower()
+                deleteFromMySql_vkid_link(id, workingLink)
                 id = 1
-            elif LastUserMsg == 'Отписка от всего':
+            elif LastUserMsg.lower() == 'отключиться от рассылки':
                 mycursor = mydb.cursor()
                 deleteAll = 'DELETE FROM users WHERE VKID=%s' % id
                 mycursor.execute(deleteAll)
+                print(mycursor.rowcount, "record deleted.")
                 sendMsg(id, 'Вы отписались от всех рассылок')
                 mydb.commit()
                 id = 1
-            elif LastUserMsg == 'Меню':
-                sendMsg(id, '1. *Ссылка*"\n\n2. Отписка\n\n3. Отписка от всего')
+            elif LastUserMsg.lower() == 'меню':
+                sendMsg(id, '1. Подписка *никнэйм стримера*"\n\n2. Отписка *никнэйм стримера*\n\n3. Отключиться от рассылки\n\n4.*ссылка*')
                 id = 1
+            elif LastUserMsg.split(' ')[0].lower() == 'подписка':
+                workingLink = 'https://twitch.tv/' + LastUserMsg.split(' ')[1].lower()
+                TwitchName = LastUserMsg.split(' ')[1].lower()
+                print(workingLink)
+                addToMySql_vkid_link(id, workingLink)
+                mycursor = mydb.cursor()
+                mydb.cursor().execute('INSERT INTO linksToSub (subLink) VALUES ("%s")' % workingLink)
+                mydb.commit()
+                id = 1
+
             else:
+
                 LinkSeparated = LastUserMsg.split('/')
+
                 for i in range(len(LinkSeparated)):
 
                     if LinkSeparated[i] == 'twitch.tv' or LinkSeparated[i] == 'www.twitch.tv' or LinkSeparated[i] == 'm.twitch.tv':
                         if i == 2:
                             workingLink = 'https://twitch.tv/' + LinkSeparated[i + 1].lower()
-                            TwitchName = LinkSeparated[i + 1]
+                            TwitchName = LinkSeparated[i + 1].lower()
                             try:
                                 workingLink = workingLink.split('?')[0]
                                 TwitchName = TwitchName.split('?')[0]
@@ -126,14 +138,11 @@ while True:    # LongPoll получение последнего сообщен
                                 pass
                             print(workingLink)
                             TwitchNameFL = tuple(LinkSeparated[i + 1][0])
-                            if unsub == 1:
-                                print('Deleting..')
-                                mycursor = mydb.cursor()
-                                deleteFromMySql_vkid_link(id)
-                                mydb.commit()
-                                mycursor.close()
-                                unsub = 0
-                                id = 1
+                            addToMySql_vkid_link(id, workingLink)
+                            mycursor = mydb.cursor()
+                            mydb.cursor().execute('INSERT INTO linksToSub (subLink) VALUES ("%s")' % workingLink)
+                            mydb.commit()
+                            id = 1
                         else:
                             Error()
                             id = 1
@@ -142,16 +151,11 @@ while True:    # LongPoll получение последнего сообщен
                                 id = 1
 
 
-            if type(workingLink) == str:
-                addToMySql_vkid_link(id, workingLink)
-                mycursor = mydb.cursor()
-                mydb.cursor().execute('INSERT INTO linksToSub (subLink) VALUES ("%s")' % workingLink)
-                mydb.commit()
-                id = 1
-        except:
-            print("Can't get lastUserMSG")
+        except Exception:
+            traceback.print_exc()
+            Error()
             id = 1
-            pass
+
 
 
 
