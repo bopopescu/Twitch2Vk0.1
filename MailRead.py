@@ -3,7 +3,7 @@ import email.message
 import mysql.connector
 from SendMessageByVk import *
 from bs4 import BeautifulSoup
-from info import mypass, config
+from info import mypass, config, Admin_id
 
 
 checkhtml = 1
@@ -11,9 +11,10 @@ mail = imaplib.IMAP4_SSL('imap.mail.ru')
 mail.login('twitch2vk@mail.ru', mypass)
 past_email_uid = open('lastEmailUid.txt', 'r')
 while True:  # Постоянная проверка новых писем на наличие изменений, нужно поменять на проверку переменной для исключения возможности порчи ssd из-за постоянной перезаписи файла
-    mail.list()
-    mail.select('inbox')
     try:
+        mail.list()
+        mail.select('inbox')
+
         result, data = mail.uid('search', None, "ALL")  # Выполняет поиск и возвращает UID писем.
         latest_email_uid = data[0].split()[-1]
         result, data = mail.uid('fetch', latest_email_uid, '(RFC822)')
@@ -54,4 +55,9 @@ while True:  # Постоянная проверка новых писем на 
                 except:
                     pass
     except:
+        print('Something wrong')
+        sendMsg(Admin_id, 'Что-то с почтой')
+        mail = imaplib.IMAP4_SSL('imap.mail.ru')
+        mail.login('twitch2vk@mail.ru', mypass)
+        past_email_uid = open('lastEmailUid.txt', 'r')
         pass
