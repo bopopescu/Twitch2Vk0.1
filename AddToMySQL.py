@@ -30,7 +30,7 @@ def addToMySql_vkid_link(bruhId, link):
     if mycursor.rowcount == -1:
         sendMsg(bruhId, 'Неудалось добавить в базу данных. Попробуйте еще разок')
     else:
-        sendMsg(bruhId, 'Стример ' + TwitchName + ' добавлен в базу данных')
+        sendMsg(bruhId, '🔑 Стример ' + TwitchName + ' добавлен в базу данных')
     print(mycursor.rowcount, "record inserted.")
 
 def deleteFromMySql_vkid_link(bruhId, link):
@@ -41,10 +41,10 @@ def deleteFromMySql_vkid_link(bruhId, link):
     if mycursor.rowcount == -1:
         sendMsg(bruhId, 'Нет в базе данных')
     else:
-        sendMsg(bruhId, 'Стример ' + TwitchName + ' удален из базы данных')
+        sendMsg(bruhId, '🔥 Стример ' + TwitchName + ' удален из базы данных')
     print(mycursor.rowcount, "record deleted.")
 def Error():
-    sendMsg(id, 'Команда не распознана. Повторите все заново.\n(Если не получается напишите админу)')
+    sendMsg(id, '👀 Команда не распознана. 👀 Повторите все заново.\n(Если не получается напишите админу)')
 
 
 
@@ -105,11 +105,11 @@ while True:    # LongPoll получение последнего сообщен
                 deleteAll = 'DELETE FROM users WHERE VKID=%s' % id
                 mycursor.execute(deleteAll)
                 print(mycursor.rowcount, "record deleted.")
-                sendMsg(id, 'Вы отписались от всех рассылок')
+                sendMsg(id, '😥 Вы отписались от всех рассылок')
                 mydb.commit()
                 id = 1
             elif LastUserMsg.lower() == 'меню':
-                sendMsg(id, '1. Подписка *никнэйм стримера*"\n\n2. Отписка *никнэйм стримера*\n\n3. Отключиться от рассылки\n\n4.*ссылка*')
+                sendMsg(id, 'Введите одну из следующих команд:\n\n\n📃 Подписка *никнэйм стримера*"\n\n🕯 Отписка *никнэйм стримера*\n\n👽 Отключиться от рассылки\n\n⚡ *ссылка*')
                 id = 1
             elif LastUserMsg.split(' ')[0].lower() == 'подписка':
                 workingLink = 'https://twitch.tv/' + LastUserMsg.split(' ')[1].lower()
