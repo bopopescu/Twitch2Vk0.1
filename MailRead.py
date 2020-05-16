@@ -48,7 +48,7 @@ while True:  # Постоянная проверка новых писем на 
                         for x in myresult:
                             if x[1] == link.lower():
                                 print(x)
-                                link_for_user = 'Пользователь {} начал свою трансляцию. Ссылка:\n{}'.format(username, link)
+                                link_for_user = '👁 Пользователь {} начал свою трансляцию. 👁 Ссылка:\n{}'.format(username, link)
                                 sendMsg(x[0], link_for_user)
                     mycursor.close()
                     mydb.disconnect()
