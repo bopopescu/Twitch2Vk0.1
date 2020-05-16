@@ -25,7 +25,7 @@ def getBruh(id):
 def addToMySql_vkid_link(bruhId, link):
     all = getBruh(bruhId)
     sql = "INSERT INTO users (VKID, TwitchUser, LetIndex) VALUES (%s, %s, %s)"
-    val = (all[1]['peer_id'], link, all[1]['text'].split('/')[3][0])
+    val = (all[0]['peer_id'], link, all[0]['text'].split('/')[3][0])
     mycursor.execute(sql, val)
     mydb.commit()
     if mycursor.rowcount == -1:
@@ -87,6 +87,7 @@ while True:    # LongPoll получение последнего сообщен
             id = 1
             print("Waiting for message")
     except:
+        print(token)
         print('problemVkConnection')
         pass
     while id != 1: # Впихиваем последнее сообщение пользователя в базу данных, сейчас нужно поменять на проверку наличия ссылки на твич для того что бы впихать
@@ -95,6 +96,7 @@ while True:    # LongPoll получение последнего сообщен
             workingLink = None
             LastUserMsg = getBruh(id)[0]['text']
             print("Message", LastUserMsg, 'from', id)
+
             if LastUserMsg == 'Отписка':
                 unsub = 1
                 sendMsg(id, 'Введите ссылку на стримера')
@@ -141,34 +143,11 @@ while True:    # LongPoll получение последнего сообщен
 
 
             if type(workingLink) == str:
-                sendMsg(id, 'Проверяем наличие в базе данных')
+                addToMySql_vkid_link(id, workingLink)
                 mycursor = mydb.cursor()
-                sel = ('SELECT * FROM users WHERE LetIndex = %s')
-                fl = (TwitchNameFL)
-                mycursor.execute(sel,fl)
-                asc = mycursor.fetchall()
-                got = 0
-                AlreadyInSQL = 0
-
-                for k in range(len(asc)+1):
-                    if k != len(asc) and got != 1:
-                        print(asc[k])
-                        if asc[k][0] == getBruh(id)[0]['peer_id'] and asc[k][1] == workingLink:
-                            sendMsg(id, 'Стример ' + TwitchName + ' уже привязан к вашему аккаунту, не надо так')
-                            got = 1
-                            id = 1
-                        if asc[k][1] == workingLink:
-                            AlreadyInSQL = 1
-                    elif got != 1 and k == len(asc):
-                        addToMySql_vkid_link(id, workingLink)
-                        if AlreadyInSQL != 1:
-                            sendMsg(id, 'Вы первый! Мы подписались на твиче!')
-                            mydb.cursor().execute('INSERT INTO linksToSub (subLink) VALUES ("%s")' % workingLink)
-                            mydb.commit()
-                        id = 1
-                    elif got == 1 and k == len(asc):
-                        id = 1
-                mycursor.close()
+                mydb.cursor().execute('INSERT INTO linksToSub (subLink) VALUES ("%s")' % workingLink)
+                mydb.commit()
+                id = 1
         except:
             print("Can't get lastUserMSG")
             id = 1
