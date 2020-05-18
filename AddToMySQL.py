@@ -54,7 +54,7 @@ def sendKeyboard(userid):
                     "action": {
                         "type": "text",
                         "payload": "{\"button\": \"4\"}",
-                        "label": "Подписка dadorka_tv"
+                        "label": "Подписка dadork_tv"
                     },
                     "color": "secondary"
                 }],
@@ -128,11 +128,12 @@ def deleteFromMySql_vkid_link(bruhId, link):
     print(mycursor.rowcount, "record deleted.")
 def Error():
     try:
-        id_int = int(id)
-        sendMsg(id_int,'👀 Админы оповещены и скоро вам ответят...')
-        sendMsg(Admin_id, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
-        sendMsg(335984154, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
-        sendMsg(538735097, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
+        if id != 1:
+            id_int = int(id)
+            sendMsg(id_int,'👀 Админы оповещены и скоро вам ответят...')
+            sendMsg(Admin_id, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
+            sendMsg(335984154, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
+            sendMsg(538735097, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
     except:
         print('Wrong id')
 
