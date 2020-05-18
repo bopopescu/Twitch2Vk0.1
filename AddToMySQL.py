@@ -44,11 +44,14 @@ def deleteFromMySql_vkid_link(bruhId, link):
         sendMsg(bruhId, '🔥 Стример ' + TwitchName + ' удален из базы данных')
     print(mycursor.rowcount, "record deleted.")
 def Error():
-    sendMsg(id,'👀 Админы оповещены и скоро вам ответят...')
-    sendMsg(Admin_id, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id))
-    sendMsg(335984154, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id))
-    sendMsg(538735097, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id))
-
+    try:
+        id_int = int(id)
+        sendMsg(id_int,'👀 Админы оповещены и скоро вам ответят...')
+        sendMsg(Admin_id, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
+        sendMsg(335984154, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
+        sendMsg(538735097, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id_int))
+    except:
+        print('Wrong id')
 
 
 while True:    # LongPoll получение последнего сообщения по peer_id пользователя
