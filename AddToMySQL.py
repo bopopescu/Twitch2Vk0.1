@@ -44,7 +44,7 @@ def deleteFromMySql_vkid_link(bruhId, link):
         sendMsg(bruhId, '🔥 Стример ' + TwitchName + ' удален из базы данных')
     print(mycursor.rowcount, "record deleted.")
 def Error():
-    sendMsg(id, '👀 Команда не распознана. 👀 Повторите все заново.\n(Если не получается напишите админу)')
+    sendMsg(Admin_id, 'Кто-то что-то написал')
 
 
 
@@ -96,7 +96,8 @@ while True:    # LongPoll получение последнего сообщен
             print("Message", LastUserMsg, 'from', id)
 
             if LastUserMsg == 'Макс, где видос':
-                sendMsg(id, 'На днях...')
+                sendMsg(id, 'На днях... ⏱')
+                id = 1
 
             if LastUserMsg.split(' ')[0].lower() == 'отписка':
                 workingLink = 'https://twitch.tv/' + LastUserMsg.split(' ')[1]
