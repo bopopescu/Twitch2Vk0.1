@@ -2,6 +2,8 @@ from SendMessageByVk import *
 import mysql.connector
 from info import *
 import traceback
+import json
+
 
 mydb = mysql.connector.connect(**config)
 mycursor = mydb.cursor()
@@ -19,6 +21,87 @@ def getBruh(id):
     except:
         pass
 
+def sendKeyboard(userid):
+    data = {
+        "one_time" : False,
+        "buttons": [
+            [{
+                "action": {
+                    "type": "text",
+                    "payload": "{\"button\": \"1\"}",
+                    "label": "Подписка dawgdebik"
+                },
+                "color": "secondary"
+            },
+                {
+                    "action": {
+                        "type": "text",
+                        "payload": "{\"button\": \"2\"}",
+                        "label": "Подписка mightypoot"
+                    },
+                    "color": "secondary"
+                }],
+                [{
+                    "action": {
+                        "type": "text",
+                        "payload": "{\"button\": \"3\"}",
+                        "label": "Подписка alison_channel"
+                    },
+                    "color": "secondary"
+                },
+
+                {
+                    "action": {
+                        "type": "text",
+                        "payload": "{\"button\": \"4\"}",
+                        "label": "Подписка dadorka_tv"
+                    },
+                    "color": "secondary"
+                }],
+            [{
+                "action": {
+                    "type": "text",
+                    "payload": "{\"button\": \"1\"}",
+                    "label": "Меню"
+                },
+                "color": "primary"
+            },
+            {
+                "action": {
+                    "type": "text",
+                    "payload": "{\"button\": \"1\"}",
+                    "label": "Отключить клавиатуру"
+                },
+                "color": "negative"
+            }]
+        ]
+    }
+    requests.post('https://api.vk.com/method/messages.send',
+                                                params={
+                                                    'random_id': random.randrange(1, 21567),
+                                                    'message': '👨‍👨‍👦‍👦 Dawg и ко.',
+                                                    'keyboard': json.dumps(data),
+                                                    'peer_id': userid,
+                                                    'access_token': token,
+                                                    'v': version,
+
+                                                }
+                  )
+
+
+def deleteKeyboard(userid):
+
+    requests.post('https://api.vk.com/method/messages.send',
+                  params={
+                      'random_id': random.randrange(1, 21567),
+                      'message': '❌ Клавиатура отключена',
+                      'keyboard': '{"buttons":[],"one_time":true}',
+                      'peer_id': userid,
+                      'access_token': token,
+                      'v': version,
+
+                  }
+                  )
 
 
 def addToMySql_vkid_link(bruhId, link):
@@ -100,9 +183,16 @@ while True:    # LongPoll получение последнего сообщен
             LastUserMsg = getBruh(id)[0]['text']
             print("Message", LastUserMsg, 'from', id)
 
-            if LastUserMsg == 'Макс, где видос':
-                sendMsg(id, 'На днях... ⏱')
+
+            if LastUserMsg.lower() == 'начать':
+                sendKeyboard(id)
                 id = 1
+
+            if LastUserMsg.lower() == 'отключить клавиатуру':
+                deleteKeyboard(id)
+                id = 1
+
+
 
             if LastUserMsg.split(' ')[0].lower() == 'отписка':
                 workingLink = 'https://twitch.tv/' + LastUserMsg.split(' ')[1]
@@ -118,7 +208,7 @@ while True:    # LongPoll получение последнего сообщен
                 mydb.commit()
                 id = 1
             elif LastUserMsg.lower() == 'меню':
-                sendMsg(id, 'Введите одну из следующих команд:\n\n\n📃 Подписка *никнэйм стримера*"\n\n🕯 Отписка *никнэйм стримера*\n\n👽 Отключиться от рассылки\n\n⚡ *ссылка*\n\n 🐶 Макс, где видос 🐶')
+                sendMsg(id, 'Введите одну из следующих команд:\n\n\n🤖 Начать\n(Клавиатура для подписки)\n\n\n📃 Подписка *никнэйм стримера*"\n\n🕯 Отписка *никнэйм стримера*\n\n👽 Отключиться от рассылки\n\n⚡ *ссылка на стримера*')
                 id = 1
             elif LastUserMsg.split(' ')[0].lower() == 'подписка':
                 workingLink = 'https://twitch.tv/' + LastUserMsg.split(' ')[1].lower()
