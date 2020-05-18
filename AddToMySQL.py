@@ -45,9 +45,9 @@ def deleteFromMySql_vkid_link(bruhId, link):
     print(mycursor.rowcount, "record deleted.")
 def Error():
     sendMsg(id,'👀 Админы оповещены и скоро вам ответят...')
-    sendMsg(Admin_id, '✏ Кто-то написал в группу:\n\nhttps://vk.com/gim192739729?sel={id}'.format(id=id))
-    sendMsg(335984154, '✏ Кто-то написал в группу:\n\nhttps://vk.com/gim192739729?sel={id}'.format(id=id))
-    sendMsg(538735097, '✏ Кто-то написал в группу:\n\nhttps://vk.com/gim192739729?sel={id}'.format(id=id))
+    sendMsg(Admin_id, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id))
+    sendMsg(335984154, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id))
+    sendMsg(538735097, '✏ Кто-то написал в группу:\nhttps://vk.com/gim{group_id}?sel={id}'.format(group_id=Group_id, id=id))
 
 
 
